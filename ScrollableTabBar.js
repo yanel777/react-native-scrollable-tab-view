@@ -48,7 +48,9 @@ const ScrollableTabBar = createReactClass({
 
   getInitialState() {
     this._tabsMeasurements = [];
-    return {
+    this.nohack = false;
+
+      return {
       _leftTabUnderline: new Animated.Value(0),
       _widthTabUnderline: new Animated.Value(0),
       _containerWidth: null,
@@ -57,9 +59,14 @@ const ScrollableTabBar = createReactClass({
 
   componentDidMount() {
     this.props.scrollValue.addListener(this.updateView);
+    this.updateView({ value: 0 });
+    setTimeout(() => {
+        this.nohack = true
+    }, 1000);
   },
 
   updateView(offset) {
+    if (!this.nohack) offset.value = offset.value || 0;
     const position = Math.floor(offset.value);
     const pageOffset = offset.value % 1;
     const tabCount = this.props.tabs.length;
@@ -127,7 +134,6 @@ const ScrollableTabBar = createReactClass({
   renderTab(name, page, isTabActive, onPressHandler, onLayoutHandler) {
     const { activeTextColor, inactiveTextColor, textStyle, } = this.props;
     const textColor = isTabActive ? activeTextColor : inactiveTextColor;
-    const fontWeight = isTabActive ? 'bold' : 'normal';
 
     return <Button
       key={`${name}_${page}`}
@@ -138,7 +144,7 @@ const ScrollableTabBar = createReactClass({
       onLayout={onLayoutHandler}
     >
       <View style={[styles.tab, this.props.tabStyle, ]}>
-        <Text style={[{color: textColor, fontWeight, }, textStyle, ]}>
+        <Text style={[{color: textColor }, textStyle, ]}>
           {name}
         </Text>
       </View>
